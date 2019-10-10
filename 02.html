@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vue.js"></script>
+    <style type="text/css">
+        *{margin:0px;padding:0px;}
+        body{font-size:14px;}
+        th{font-size:18px; background:#f7f7f7; color:#5c6bee; font-weight:600;}
+        #cartTable{margin:30px auto; border-collapse: collapse;}
+        td,th{padding:5px 10px;}
+        .txtCnt{width:30px; margin:0px 5px;}
+        button{padding:5px;}
+        .total{font-size:18px; color:darkred; font-weight:800;}
+    </style>
+</head>
+<body>
+<div id="cart">
+    <template v-if="list.length">
+    <table border="1" cellspacing="0" id="cartTable" >
+        <thead>
+        <tr>
+            <th><input type="checkbox" @click='checkAll' v-model='allCheck'>全选</th>
+            <th>商品序号</th>
+            <th>商品编号</th>
+            <th>商品名称</th>
+            <th>商品数量</th>
+            <th>商品单价</th>
+            <th>移出</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item,index) in list">
+            <td><input type="checkbox" v-model='item.isChecked' @click="singleCheck(index)">选择</td>
+            <td>{{index+1}}</td>
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td><button @click="handleReduce(index)" :disable="item.count === 1 ">-</button>
+                <input class="txtCnt" type="text" v-model="item.count" />
+                <button @click="handleAdd(index)">+</button>
+            </td>
+            <td>{{item.price}}</td>
+            <td><button @click="handleRemove">删除</button></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr><!--购物车中有商品时显示-->
+            <td colspan="7">总价为：<span class="total">{{totalPrice}}</span>元</td>
+        </tr>
+        <tr v-else><!--购物车中无商品时显示-->
+            <td colspan="7">此购物车中无商品</td>
+        </tr>
+        </tfoot>
+    </table>
+    </template>
+</div>
+<script>
+    new Vue({
+        el:'#cart',
+        data(){
+            return{
+                allCheck:false,
+                list:[
+                    {id:'0001',name:'iphoneX',count:1,price:6188,isChecked : false},
+                    {id:'0002',name:'华为p30',count:2,price:5934,isChecked : false},
+                    {id:'0003',name:'小米RedmiBook',count:1,price:4299,isChecked : false},
+                    {id:'0004',name:'华为畅享9e',count:3,price:799,isChecked : false}
+                ]
+            }
+        },
+        computed : {
+            totalPrice:function() {
+                let total = 0;
+                const newArr = this.list.filter(value => {
+                    return value.isChecked == true
+                });
+                for(var i = 0 ;i<newArr.length;i++) {
+                    total += this.list[i].price * this.list[i].count
+                }
+                return total
+            }
+        },
+        methods:{
+            handleReduce:function(index) {
+                if(this.list[index].count === 1) return ;
+                this.list[index].count--;
+            },
+            handleAdd:function(index) {
+                this.list[index].count++
+            },
+            handleRemove:function(index) {
+                this.list.splice(index,1)
+            },
+            checkAll() {
+                this.allCheck = !this.allCheck;
+                this.list.forEach(value => {
+                    value.isChecked = this.allCheck
+                })
+            },
+            singleCheck(index) {
+                this.list[index].isChecked = !this.list[index].isChecked;
+                const selectData = this.list.filter(value => {
+                    return value.isChecked == true
+                });
+                this.allCheck = selectData.length===this.list.length ? true :false
+            }
+        }
+    })
+</script>
+</body>
+</html>
